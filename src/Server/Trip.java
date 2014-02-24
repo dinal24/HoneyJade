@@ -28,7 +28,7 @@ public class Trip {
     private int passedCheckingFactor;
     private int nearestLocationId;
 
-    private float[][] wayPoints;
+    private float[][] wayPoints; //
     private int[][] IdPreviousNext;
     private static TripDataReader dataReader=null;
     
@@ -96,8 +96,15 @@ public class Trip {
         } catch (SQLException ex) {
             Logger.getLogger(Trip.class.getName()).log(Level.SEVERE, null, ex);
         }
-         //initialize IdpreviousNext
-         //initialize IdpreviousNext
+        //initialize waypoints
+        try {
+            this.wayPoints=dataReader.getWayPoints(routeID);
+        } catch (SQLException ex) {
+            Logger.getLogger(Trip.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        //initialize IdpreviousNext
+        //initialize IdpreviousNext
     }
 
     private void estimatedArrivalTimeForStations() {
