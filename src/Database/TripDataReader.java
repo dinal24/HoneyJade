@@ -19,7 +19,7 @@ import java.util.logging.Logger;
  *
  * @author Eranda
  */
-public class TipDataReader {
+public class TripDataReader {
     
     private Connection conn;
     private String hostname;
@@ -28,7 +28,7 @@ public class TipDataReader {
     private String password;
     private static final Logger logger = Logger.getLogger("Database");
 
-    public TipDataReader() throws SQLException {
+    public TripDataReader() throws SQLException {
 	this.hostname = "localhost";
 	this.dbName = "gpsdata";
 	this.username = "root";
@@ -52,11 +52,23 @@ public class TipDataReader {
     }
        
     public int[] getStationsList(int routeID) throws SQLException{
+        int[] output;
         Statement select = conn.createStatement();
 	ResultSet result = select.executeQuery("SELECT stationID FROM route_staions WHERE routeID = '" + routeID + "' ORDER BY stationsOrder  ASC;");
         //have to convert the reslutset to integer array
-	}
+        ArrayList<Integer> temp = new ArrayList<>();
+        while (result.next()) {
+            temp.add(result.getInt(1));
+        }
+        output = new int[temp.size()];
+        for(int i=0, len = temp.size(); i < len; i++)
+        output[i] = temp.get(i);
+        return output;
+    }
+    
+    
+        
     }
 
-    public 
-}
+    
+

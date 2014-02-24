@@ -6,6 +6,10 @@
 package Server;
 
 import java.util.ArrayList;
+import Database.TripDataReader;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -13,8 +17,8 @@ import java.util.ArrayList;
  */
 public class Trip {
 
-    private int routeID;
-    private int[] routeStationIdList;
+    private int routeID;//
+    private int[] routeStationIdList;//
     private String[] estimatedArrivalTimeForStations;
     private String[] estimatedArrivalTime;
     private boolean[] passedStationIds;
@@ -26,11 +30,20 @@ public class Trip {
 
     private float[][] wayPoints;
     private int[][] IdPreviousNext;
+    private static TripDataReader dataReader=null;
+    
+    static{
+        try {
+            dataReader =new TripDataReader();
+        } catch (SQLException ex) {
+            Logger.getLogger(Trip.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
     //making singleton
     public static ArrayList<Trip> trip = new ArrayList<>();
 
-    public Trip(int routeId) {
+    private Trip(int routeId) {
         routeID = routeId;
         setTripData();
         estimatedArrivalTimeForStations();
@@ -76,11 +89,19 @@ public class Trip {
 
     private void setTripData() {
         //initialize routeStationIds
-        //initialize waypoints[][]
-        //initialize IdpreviousNext
+        try {
+            this.routeStationIdList=dataReader.getStationsList(this.routeID);
+            this.passedStationIds=new boolean[routeStationIdList.length];
+            for(int i=0;i<passedStationIds.length;i++)  passedStationIds[i]=false;
+        } catch (SQLException ex) {
+            Logger.getLogger(Trip.class.getName()).log(Level.SEVERE, null, ex);
+        }
+         //initialize IdpreviousNext
+         //initialize IdpreviousNext
     }
 
     private void estimatedArrivalTimeForStations() {
+        
     }
 
     public void execute(LocationBox locationBox) {
