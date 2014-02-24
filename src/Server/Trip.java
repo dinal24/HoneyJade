@@ -13,24 +13,24 @@ import java.util.ArrayList;
  */
 public class Trip {
 
-    int routeID;
-    int[] routeStationIdList;
-    String[] estimatedArrivalTimeForStations;
-    String[] estimatedArrivalTime;
-    boolean[] passedStationIds;
+    private int routeID;
+    private int[] routeStationIdList;
+    private String[] estimatedArrivalTimeForStations;
+    private String[] estimatedArrivalTime;
+    private boolean[] passedStationIds;
 
-    float startedLatitude;
-    float startedLongitude;
-    int passedCheckingFactor;
-    int nearestLocationId;
+    private float startedLatitude;
+    private float startedLongitude;
+    private int passedCheckingFactor;
+    private int nearestLocationId;
 
-    float[][] wayPoints;
-    int[][] IdPreviousNext;
+    private float[][] wayPoints;
+    private int[][] IdPreviousNext;
 
     //making singleton
     public static ArrayList<Trip> trip = new ArrayList<>();
 
-    private Trip(int routeId) {
+    public Trip(int routeId) {
         routeID = routeId;
         setTripData();
         estimatedArrivalTimeForStations();
