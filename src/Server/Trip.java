@@ -6,6 +6,10 @@
 package Server;
 
 import java.util.ArrayList;
+import Database.TripDataReader;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -13,19 +17,28 @@ import java.util.ArrayList;
  */
 public class Trip {
 
-    int routeID;
-    int[] routeStationIdList;
-    String[] estimatedArrivalTimeForStations;
-    String[] estimatedArrivalTime;
-    boolean[] passedStationIds;
+    private int routeID;//
+    private int[] routeStationIdList;//
+    private String[] estimatedArrivalTimeForStations;
+    private String[] estimatedArrivalTime;
+    private boolean[] passedStationIds;
 
-    float startedLatitude;
-    float startedLongitude;
-    int passedCheckingFactor;
-    int nearestLocationId;
+    private float startedLatitude;
+    private float startedLongitude;
+    private int passedCheckingFactor;
+    private int nearestLocationId;
 
-    float[][] wayPoints;
-    int[][] IdPreviousNext;
+    private float[][] wayPoints; //
+    private int[][] IdPreviousNext;
+    private static TripDataReader dataReader=null;
+    
+    static{
+        try {
+            dataReader =new TripDataReader();
+        } catch (SQLException ex) {
+            Logger.getLogger(Trip.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
     //making singleton
     public static ArrayList<Trip> trip = new ArrayList<>();
@@ -76,11 +89,26 @@ public class Trip {
 
     private void setTripData() {
         //initialize routeStationIds
-        //initialize waypoints[][]
+        try {
+            this.routeStationIdList=dataReader.getStationsList(this.routeID);
+            this.passedStationIds=new boolean[routeStationIdList.length];
+            for(int i=0;i<passedStationIds.length;i++)  passedStationIds[i]=false;
+        } catch (SQLException ex) {
+            Logger.getLogger(Trip.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        //initialize waypoints
+        try {
+            this.wayPoints=dataReader.getWayPoints(routeID);
+        } catch (SQLException ex) {
+            Logger.getLogger(Trip.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        //initialize IdpreviousNext
         //initialize IdpreviousNext
     }
 
     private void estimatedArrivalTimeForStations() {
+        
     }
 
     public void execute(LocationBox locationBox) {
