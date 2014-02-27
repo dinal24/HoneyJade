@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import Database.TripDataReader;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -101,10 +102,10 @@ public class Trip {
 	}
 
     private int routeID;//
-    private int[] routeStationIdList;//
+    private int[] routeStationIdList;           //removed
     private String[] estimatedArrivalTimeForStations;
     private String[] estimatedArrivalTime;
-    private boolean[] passedStationIds;
+    private boolean[] passedStationIds;         //is this required?
 
     private float startedLatitude;
     private float startedLongitude;
@@ -134,17 +135,21 @@ public class Trip {
 
     
     private void setTripData() {
-        //initialize routeStationIds
-        try {
-            this.routeStationIdList=dataReader.getStationsList(this.routeID);
-            this.passedStationIds=new boolean[routeStationIdList.length];
-            for(int i=0;i<passedStationIds.length;i++)  passedStationIds[i]=false;
-        } catch (SQLException ex) {
-            Logger.getLogger(Trip.class.getName()).log(Level.SEVERE, null, ex);
-        }
+         //initialize station data
+            try {
+                ResultSet rs=dataReader.getStationsData(routeID);
+                while (rs.next()) {
+                    stations.put(rs.getInt(6), new Station(rs.getInt(1),new Coordinate(rs.getFloat(2),rs.getFloat(3)),new Coordinate(rs.getFloat(4),rs.getFloat(5))));
+                }
+                this.passedStationIds=new boolean[stations.size()];
+            } catch (SQLException ex) {
+                Logger.getLogger(Trip.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
         //initialize waypoints
+            
         try {
-            this.wayPoints=dataReader.getWayPoints(routeID);
+            this.wayPoints=dataReader.getWayPointsData(routeID);
         } catch (SQLException ex) {
             Logger.getLogger(Trip.class.getName()).log(Level.SEVERE, null, ex);
         }
