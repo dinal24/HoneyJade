@@ -57,8 +57,11 @@ public class TripDataReader {
         return result;
     }
     
-    public float[][] getWayPointsData(int routeID)throws SQLException{
-        float[][] output;
+    public ResultSet getWayPointsData(int routeID)throws SQLException{
+        Statement select = conn.createStatement();
+        ResultSet result = select.executeQuery("SELECT * FROM waypoint WHERE routeID = '" + routeID + "'ORDER BY index ASC;");
+        return result;
+        /*float[][] output;
         Statement select = conn.createStatement();
 	ResultSet result = select.executeQuery("SELECT latitude,longitude FROM waypoint WHERE routeID = '" + routeID + "' ;");
         ArrayList<Float> temp1 = new ArrayList<>();
@@ -76,6 +79,7 @@ public class TripDataReader {
         }
         //output[0] has lattudes, output[1] has longitudes
         return output;
+                */
     }
         
     }

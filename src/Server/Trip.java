@@ -19,10 +19,6 @@ import java.util.logging.Logger;
  * @author Vimukthi Weerasiri
  */
 public class Trip {
-
-
-	
-//
 	private ArrayList<Waypoint> waypoints;
 	private Map<Integer, Station> stations;
 	//making singleton
@@ -112,8 +108,8 @@ public class Trip {
     private int passedCheckingFactor;
     private int nearestLocationId;
 
-    private float[][] wayPoints; //
-    private int[][] IdPreviousNext;
+    private float[][] wayPoints;            //removed
+    private int[][] IdPreviousNext;         //removed
     private static TripDataReader dataReader=null;
     
     static{
@@ -147,9 +143,11 @@ public class Trip {
             }
             
         //initialize waypoints
-            
         try {
-            this.wayPoints=dataReader.getWayPointsData(routeID);
+            ResultSet rs_1=dataReader.getWayPointsData(routeID);
+            while(rs_1.next()){
+                waypoints.add(new Waypoint(rs_1.getInt(1),rs_1.getInt(2),new Coordinate(rs_1.getFloat(3),rs_1.getFloat(4)),rs_1.getFloat(5),rs_1.getInt(6),rs_1.getInt(7)));
+            }
         } catch (SQLException ex) {
             Logger.getLogger(Trip.class.getName()).log(Level.SEVERE, null, ex);
         }

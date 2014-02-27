@@ -12,6 +12,17 @@ public class Waypoint {
 	private int prevStationID;
 	private int nextStationID;
 
+        public Waypoint(int id,int routeID,Coordinate location ,float estimateReachTime,   int prevStationID, int nextStationID) {
+            this.estimateReachTime = estimateReachTime;
+            this.actualReachTime = this.estimateReachTime;
+            this.location = location;
+            this.id = id;
+            this.routeID = routeID;
+            this.prevStationID = prevStationID;
+            this.nextStationID = nextStationID;
+        }
+        
+        
 	/**
 	 * @return the estimateReachTime
 	 */
