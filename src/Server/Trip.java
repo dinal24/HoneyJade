@@ -8,6 +8,10 @@ package Server;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
+import Database.TripDataReader;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -15,19 +19,8 @@ import java.util.Map;
  */
 public class Trip {
 
-	int routeID;
-	int[] routeStationIdList;
-	String[] estimatedArrivalTimeForStations;
-	String[] estimatedArrivalTime;
-	boolean[] passedStationIds;
-//
-	float startedLatitude;
-	float startedLongitude;
-	int passedCheckingFactor;
-	int nearestLocationId;
-//
-//	float[][] waypoints;
-	int[][] IdPreviousNext;
+
+	
 //
 	private ArrayList<Waypoint> waypoints;
 	private Map<Integer, Station> stations;
@@ -100,15 +93,65 @@ public class Trip {
 		RasberryHandler.getInstance().updateFromTrip(routeID, routeStationIdList, passedStationIds, estimatedArrivalTime);
 	}
 
-	private void setTripData() {
-		//initialize routeStationIds
-		//initialize waypoints[][]
-		//initialize IdpreviousNext
-	}
-
+	
 	private void estimatedArrivalTimeForStations() {
 	}
 
 	public void execute(LocationBox locationBox) {
 	}
+
+    private int routeID;//
+    private int[] routeStationIdList;//
+    private String[] estimatedArrivalTimeForStations;
+    private String[] estimatedArrivalTime;
+    private boolean[] passedStationIds;
+
+    private float startedLatitude;
+    private float startedLongitude;
+    private int passedCheckingFactor;
+    private int nearestLocationId;
+
+    private float[][] wayPoints; //
+    private int[][] IdPreviousNext;
+    private static TripDataReader dataReader=null;
+    
+    static{
+        try {
+            dataReader =new TripDataReader();
+        } catch (SQLException ex) {
+            Logger.getLogger(Trip.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    //making singleton
+   
+
+    //////////////////////
+    public int getIdOfNearestLocation(int latitude, int longitude) {
+        //get ID from the array
+        return 0;
+    }
+
+    
+    private void setTripData() {
+        //initialize routeStationIds
+        try {
+            this.routeStationIdList=dataReader.getStationsList(this.routeID);
+            this.passedStationIds=new boolean[routeStationIdList.length];
+            for(int i=0;i<passedStationIds.length;i++)  passedStationIds[i]=false;
+        } catch (SQLException ex) {
+            Logger.getLogger(Trip.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        //initialize waypoints
+        try {
+            this.wayPoints=dataReader.getWayPoints(routeID);
+        } catch (SQLException ex) {
+            Logger.getLogger(Trip.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        //initialize IdpreviousNext
+        //initialize IdpreviousNext
+    }
+
+   
 }
