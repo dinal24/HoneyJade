@@ -24,12 +24,7 @@ public class Trip {
 	//making singleton
 	public static ArrayList<Trip> trip = new ArrayList<>();
 
-	private Trip(int routeId) {
-		routeID = routeId;
-		setTripData();
-		estimatedArrivalTimeForStations();
-	}
-
+        //singleton maker
 	public static Trip getInstance(int routeID) {
 		for (int i = 0; i < trip.size(); i++) {
 			if (trip.get(i).routeID == routeID) {
@@ -38,12 +33,50 @@ public class Trip {
 		}
 		Trip newTrip = new Trip(routeID);
 		trip.add(newTrip);
-
 		return newTrip;
 	}
-
+        
+        //constructor
+        private Trip(int routeId) {
+		routeID = routeId;
+		setTripData();
+		estimatedArrivalTimeForStations();
+	}
+        
+        //fill data to trip object
+        private void setTripData() {
+         //initialize station data
+            try {
+                ResultSet rs=dataReader.getStationsData(routeID);
+                while (rs.next()) {
+                    stations.put(rs.getInt(6), new Station(rs.getInt(1),new Coordinate(rs.getFloat(2),rs.getFloat(3)),new Coordinate(rs.getFloat(4),rs.getFloat(5))));
+                }
+                this.passedStationIds=new boolean[stations.size()];
+            } catch (SQLException ex) {
+                Logger.getLogger(Trip.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+        //initialize waypoints
+        try {
+            ResultSet rs_1=dataReader.getWayPointsData(routeID);
+            while(rs_1.next()){
+                waypoints.add(new Waypoint(rs_1.getInt(1),rs_1.getInt(2),new Coordinate(rs_1.getFloat(3),rs_1.getFloat(4)),rs_1.getDate(5),rs_1.getInt(6),rs_1.getInt(7)));
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(Trip.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        //initialize IdpreviousNext
+        //initialize IdpreviousNext
+    }
+        
 	//////////////////////
-	public Waypoint getNearestWaypoint(int latitude, int longitude) {
+        //execute using latest location that came
+        public void execute(LocationBox locationBox) {
+            Waypoint waypoint = getNearestWaypoint(locationBox.getLatitude(),locationBox.getLongitude());
+	}
+        
+	public Waypoint getNearestWaypoint(float latitude, float longitude) {
 		float lon, lat, distance, min = Float.MAX_VALUE;
 		Waypoint temp = null, nearest = null;
 		Coordinate location = null;
@@ -94,8 +127,7 @@ public class Trip {
 	private void estimatedArrivalTimeForStations() {
 	}
 
-	public void execute(LocationBox locationBox) {
-	}
+	
 
     private int routeID;//
     private int[] routeStationIdList;           //removed
@@ -130,31 +162,7 @@ public class Trip {
     }
 
     
-    private void setTripData() {
-         //initialize station data
-            try {
-                ResultSet rs=dataReader.getStationsData(routeID);
-                while (rs.next()) {
-                    stations.put(rs.getInt(6), new Station(rs.getInt(1),new Coordinate(rs.getFloat(2),rs.getFloat(3)),new Coordinate(rs.getFloat(4),rs.getFloat(5))));
-                }
-                this.passedStationIds=new boolean[stations.size()];
-            } catch (SQLException ex) {
-                Logger.getLogger(Trip.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            
-        //initialize waypoints
-        try {
-            ResultSet rs_1=dataReader.getWayPointsData(routeID);
-            while(rs_1.next()){
-                waypoints.add(new Waypoint(rs_1.getInt(1),rs_1.getInt(2),new Coordinate(rs_1.getFloat(3),rs_1.getFloat(4)),rs_1.getFloat(5),rs_1.getInt(6),rs_1.getInt(7)));
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(Trip.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        //initialize IdpreviousNext
-        //initialize IdpreviousNext
-    }
+    
 
    
 }
