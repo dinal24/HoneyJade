@@ -150,10 +150,7 @@ public class Trip {
         } catch (SQLException ex) {
             Logger.getLogger(Trip.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-
-    //making singleton
-   
+    }  
 
     //////////////////////
     public int getIdOfNearestLocation(int latitude, int longitude) {
