@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import Database.TripDataReader;
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
@@ -21,6 +22,9 @@ import java.util.logging.Logger;
 public class Trip {
 	private ArrayList<Waypoint> waypoints;
 	private Map<Integer, Station> stations;
+        private boolean setupMode;//setup purpose
+        private int numWaypoints;//setup purpose
+        private int stationsPassed;
 	//making singleton
 	public static ArrayList<Trip> trip = new ArrayList<>();
 
@@ -36,11 +40,36 @@ public class Trip {
 		return newTrip;
 	}
         
+        public static Trip getInstance(int routeID, boolean setup) {
+                if(!setup)  return getInstance(routeID);
+                else{
+                    for (int i = 0; i < trip.size(); i++) {
+                            if (trip.get(i).routeID == routeID) {
+                                    //return trip.get(i);
+                                System.out.println("This route is already running!!");
+                                return null;
+                            }
+                    }
+                    Trip newTrip = new Trip(routeID,setup);
+                    trip.add(newTrip);
+                    return newTrip;
+                }
+                
+	}
         //constructor
         private Trip(int routeId) {
+                this.setupMode=false;
 		routeID = routeId;
 		setTripData();
 		estimatedArrivalTimeForStations();
+	}
+        
+        private Trip(int routeId,boolean setup) {
+                this.setupMode=true;
+                this.numWaypoints=0;
+		routeID = routeId;
+		setTripData();
+		//estimatedArrivalTimeForStations();
 	}
         
         //fill data to trip object
@@ -55,15 +84,16 @@ public class Trip {
             } catch (SQLException ex) {
                 Logger.getLogger(Trip.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
-        //initialize waypoints
-        try {
-            ResultSet rs_1=dataReader.getWayPointsData(routeID);
-            while(rs_1.next()){
-                waypoints.add(new Waypoint(rs_1.getInt(1),rs_1.getInt(2),new Coordinate(rs_1.getFloat(3),rs_1.getFloat(4)),rs_1.getDate(5),rs_1.getInt(6),rs_1.getInt(7)));
+        if(!setupMode){ 
+            //initialize waypoints
+            try {
+                ResultSet rs_1=dataReader.getWayPointsData(routeID);
+                while(rs_1.next()){
+                    waypoints.add(new Waypoint(rs_1.getInt(1),rs_1.getInt(2),new Coordinate(rs_1.getFloat(3),rs_1.getFloat(4)),rs_1.getDate(5),rs_1.getInt(6),rs_1.getInt(7)));
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(Trip.class.getName()).log(Level.SEVERE, null, ex);
             }
-        } catch (SQLException ex) {
-            Logger.getLogger(Trip.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         //initialize IdpreviousNext
@@ -73,7 +103,30 @@ public class Trip {
 	//////////////////////
         //execute using latest location that came
         public void execute(LocationBox locationBox) {
-            Waypoint waypoint = getNearestWaypoint(locationBox.getLatitude(),locationBox.getLongitude());
+            Waypoint waypoint;
+            
+            if(!setupMode) {
+                waypoint = getNearestWaypoint(locationBox.getLatitude(),locationBox.getLongitude());
+            }
+            else{
+                Station st=stations.get(this.stationsPassed);       //next station
+                float stationLength=(float) (Math.pow(st.getUpside().getLatitude()-st.getDownside().getLatitude(),2)+Math.pow(st.getUpside().getLongitude()-st.getDownside().getLongitude(),2));
+                float a,b;
+                a=(float) (Math.pow((locationBox.getLatitude()-st.getUpside().getLatitude()),2)-Math.pow((locationBox.getLongitude()-st.getUpside().getLongitude()),2));
+                b=(float) (Math.pow((locationBox.getLatitude()-st.getDownside().getLatitude()),2)-Math.pow((locationBox.getLongitude()-st.getDownside().getLongitude()),2));
+         
+                if(stationLength>a && stationLength>b){
+                    stationsPassed++;
+                    //caltulate number of waypoints
+                    waypoint=new Waypoint(numWaypoints,this.routeID,new Coordinate(locationBox.getLatitude(),locationBox.getLongitude()),locationBox.getRecieved_time(),st.getId(),st.getId());
+                }
+                else{
+                    waypoint=new Waypoint(numWaypoints,this.routeID,new Coordinate(locationBox.getLatitude(),locationBox.getLongitude()),locationBox.getRecieved_time(),stations.get(stationsPassed-1).getId(),st.getId());
+                }
+                dataReader.saveWaypoint(waypoint);
+                numWaypoints++;
+            }
+            
 	}
         
 	public Waypoint getNearestWaypoint(float latitude, float longitude) {
@@ -157,9 +210,4 @@ public class Trip {
         //get ID from the array
         return 0;
     }
-
-    
-    
-
-   
 }

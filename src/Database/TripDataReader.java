@@ -6,6 +6,7 @@
 
 package Database;
 
+import Server.Waypoint;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -80,6 +81,11 @@ public class TripDataReader {
         //output[0] has lattudes, output[1] has longitudes
         return output;
                 */
+    }
+    
+    public void saveWaypoint(Waypoint waypoint){
+        
+    }
     }
         
     }
