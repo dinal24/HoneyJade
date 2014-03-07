@@ -6,6 +6,7 @@
 
 package Database;
 
+import Server.Waypoint;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -51,22 +52,17 @@ public class TripDataReader {
 		username, password);
     }
        
-    public int[] getStationsList(int routeID) throws SQLException{
-        int[] output;
+    public ResultSet getStationsData(int routeID) throws SQLException{
         Statement select = conn.createStatement();
-	ResultSet result = select.executeQuery("SELECT stationID FROM route_staions WHERE routeID = '" + routeID + "' ORDER BY stationsOrder  ASC;");
-        //have to convert the reslutset to integer array
-        ArrayList<Integer> temp = new ArrayList<>();
-        while (result.next()) {
-            temp.add(result.getInt(1));
-        }
-        output = new int[temp.size()];
-        for(int i=0, len = temp.size(); i < len; i++)   output[i] = temp.get(i);
-        return output;
+        ResultSet result = select.executeQuery("SELECT stationID,up_latitude,up_longitude,down_latitude,down_longitude,stationsOrder FROM station NATURAL JOIN route_stations WHERE routeID = '" + routeID + "'ORDER BY stationsOrder ASC;");
+        return result;
     }
     
-    public float[][] getWayPoints(int routeID)throws SQLException{
-        float[][] output;
+    public ResultSet getWayPointsData(int routeID)throws SQLException{
+        Statement select = conn.createStatement();
+        ResultSet result = select.executeQuery("SELECT * FROM waypoint WHERE routeID = '" + routeID + "'ORDER BY index ASC;");
+        return result;
+        /*float[][] output;
         Statement select = conn.createStatement();
 	ResultSet result = select.executeQuery("SELECT latitude,longitude FROM waypoint WHERE routeID = '" + routeID + "' ;");
         ArrayList<Float> temp1 = new ArrayList<>();
@@ -84,6 +80,12 @@ public class TripDataReader {
         }
         //output[0] has lattudes, output[1] has longitudes
         return output;
+                */
+    }
+    
+    public void saveWaypoint(Waypoint waypoint){
+        
+    }
     }
         
     }
